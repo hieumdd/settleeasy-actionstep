@@ -1,7 +1,9 @@
 import { Timestamp } from '@google-cloud/firestore';
 import { AuthorizationCode } from 'simple-oauth2';
 
+import { logger } from '../logging.service';
 import * as tokenRepository from './token.repository';
+import axios from 'axios';
 
 const client = new AuthorizationCode({
     client: {
@@ -44,4 +46,31 @@ export const getToken = async () => {
     }
 
     return existingToken;
+};
+
+export const getClient = async () => {
+    const { token } = await getToken();
+
+    const client = axios.create({
+        baseURL: process.env.ACTIONSTEP_API_ENDPOINT,
+        headers: {
+            Accept: 'application/vnd.api+json',
+            'Content-Type': 'application/vnd.api+json',
+            Authorization: `Bearer ${token.access_token}`,
+        },
+    });
+
+    client.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (axios.isAxiosError(error)) {
+                logger.warn({ config: error.config, data: error.response?.data });
+            } else {
+                logger.warn({ error });
+            }
+            throw error;
+        },
+    );
+
+    return client;
 };

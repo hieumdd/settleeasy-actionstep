@@ -1,4 +1,4 @@
-import { exchangeCodeForToken, getAuthorizationURL, getToken } from './auth.service';
+import { exchangeCodeForToken, getAuthorizationURL, getClient, getToken } from './auth.service';
 
 it('getAuthorizationURL', () => {
     const url = getAuthorizationURL();
@@ -22,6 +22,15 @@ it('getToken', async () => {
             console.log(token.token);
             expect(token.expired()).toBe(false);
         })
+        .catch((error) => {
+            console.error(error);
+            throw error;
+        });
+});
+
+it('getClient', async () => {
+    return getClient()
+        .then((client) => expect(client).toBeDefined())
         .catch((error) => {
             console.error(error);
             throw error;
