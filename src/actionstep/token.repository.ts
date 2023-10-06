@@ -1,13 +1,15 @@
-import { Firestore } from '@google-cloud/firestore';
+import { DocumentData } from '@google-cloud/firestore';
 
-const firestore = new Firestore();
+import { firestore } from '../firestore.service';
 
 const token = () => firestore.collection('actionstep-dev').doc('access-token');
 
-export const get = () => {
-    return token().get();
+export const get = async () => {
+    return token()
+        .get()
+        .then((doc) => doc.data() as DocumentData);
 };
 
-export const set = (data: any) => {
+export const set = async (data: any) => {
     return token().set(data);
 };
