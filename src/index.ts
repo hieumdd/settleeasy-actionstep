@@ -11,7 +11,7 @@ app.use(({ headers, path, body }, _, next) => {
     next();
 });
 
-app.use('/', ({ body }, res) => {
+app.post('/', ({ body }, res) => {
     if (isActionCreated(body)) {
         handleActionCreated(body)
             .then((result) => res.status(200).json({ result }))
