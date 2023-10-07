@@ -2,6 +2,7 @@ import express from 'express';
 import { http } from '@google-cloud/functions-framework';
 
 import { logger } from './logging.service';
+import { getAuthorizationURL } from './actionstep/auth.service';
 import { isActionCreated, handleActionCreated } from './webhook/action-created.service';
 
 const app = express();
@@ -9,6 +10,10 @@ const app = express();
 app.use(({ headers, path, body }, _, next) => {
     logger.info({ headers, path, body });
     next();
+});
+
+app.get('/authorize', (_, res) => {
+    res.redirect(getAuthorizationURL());
 });
 
 app.post('/', ({ body }, res) => {
