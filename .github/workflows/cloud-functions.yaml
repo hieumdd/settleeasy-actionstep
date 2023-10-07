@@ -41,7 +41,12 @@ jobs:
       - uses: google-github-actions/setup-gcloud@v0
 
       - run: |
-          echo "DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}" >> ${{ env.ENV_FILE }}
+          echo "ACTIONSTEP_CLIENT_ID: ${{ secrets.ACTIONSTEP_CLIENT_ID }}" >> ${{ env.ENV_FILE }}
+          echo "ACTIONSTEP_CLIENT_SECRET: ${{ secrets.ACTIONSTEP_CLIENT_SECRET }}" >> ${{ env.ENV_FILE }}
+
+          echo "ACTIONSTEP_AUTHORIZE_URL: ${{ vars.ACTIONSTEP_AUTHORIZE_URL }}" >> ${{ env.ENV_FILE }}
+          echo "ACTIONSTEP_TOKEN_URL: ${{ vars.ACTIONSTEP_TOKEN_URL }}" >> ${{ env.ENV_FILE }}
+
           echo "PUBLIC_URL: ${{ env.PUBLIC_URL }}" >> ${{ env.ENV_FILE }}
 
       - run: >-
