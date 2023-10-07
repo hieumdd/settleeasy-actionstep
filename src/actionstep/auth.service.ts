@@ -5,30 +5,49 @@ import { logger } from '../logging.service';
 import * as tokenRepository from './token.repository';
 import axios from 'axios';
 
+const config = (() => {
+    const client = {
+        id: <string>process.env.ACTIONSTEP_CLIENT_ID,
+        secret: <string>process.env.ACTIONSTEP_CLIENT_SECRET,
+    };
+
+    const dev = {
+        client,
+        auth: {
+            authorizeHost: 'https://go.actionstepstaging.com/',
+            authorizePath: 'api/oauth/authorize',
+            tokenHost: 'https://api.actionstepstaging.com/',
+            tokenPath: 'api/oauth/token',
+        },
+    };
+
+    const master = {
+        client,
+        auth: {
+            authorizeHost: 'https://go.actionstepstaging.com/',
+            authorizePath: 'api/oauth/authorize',
+            tokenHost: 'https://api.actionstepstaging.com/',
+            tokenPath: 'api/oauth/token',
+        },
+    };
+
+    const config = process.env.GH_REF === 'dev' ? dev : master;
+
+    return { ...config, redirectURI: `${process.env.PUBLIC_URL}/auth/callback` };
+})();
+
 const client = new AuthorizationCode({
-    client: {
-        id: process.env.ACTIONSTEP_CLIENT_ID ?? '',
-        secret: process.env.ACTIONSTEP_CLIENT_SECRET ?? '',
-    },
-    auth: {
-        authorizeHost: 'https://go.actionstepstaging.com/',
-        authorizePath: 'api/oauth/authorize',
-        tokenHost: 'https://api.actionstepstaging.com/',
-        tokenPath: 'api/oauth/token',
-    },
+    client: config.client,
+    auth: config.auth,
     http: { json: 'force' },
 });
 
 export const getAuthorizationURL = () => {
-    return client.authorizeURL({ redirect_uri: process.env.ACTIONSTEP_REDIRECT_URI, scope: 'all' });
+    return client.authorizeURL({ redirect_uri: config.redirectURI, scope: 'all' });
 };
 
 export const exchangeCodeForToken = async (code: string) => {
-    const { token } = await client.getToken({
-        code,
-        redirect_uri: process.env.ACTIONSTEP_REDIRECT_URI ?? '',
-        scope: 'all',
-    });
+    const { token } = await client.getToken({ code, redirect_uri: config.redirectURI, scope: 'all' });
 
     await tokenRepository.set(token);
     return token;
@@ -52,7 +71,7 @@ export const getClient = async () => {
     const { token } = await getToken();
 
     const client = axios.create({
-        baseURL: process.env.ACTIONSTEP_API_ENDPOINT,
+        baseURL: <string>token.api_endpoint,
         headers: {
             Accept: 'application/vnd.api+json',
             'Content-Type': 'application/vnd.api+json',
