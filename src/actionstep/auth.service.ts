@@ -6,34 +6,22 @@ import * as tokenRepository from './token.repository';
 import axios from 'axios';
 
 const config = (() => {
-    const client = {
-        id: <string>process.env.ACTIONSTEP_CLIENT_ID,
-        secret: <string>process.env.ACTIONSTEP_CLIENT_SECRET,
-    };
+    const authorizeURL = new URL(<string>process.env.ACTIONSTEP_AUTHORIZE_URL);
+    const tokenURL = new URL(<string>process.env.ACTIONSTEP_TOKEN_URL);
 
-    const dev = {
-        client,
-        auth: {
-            authorizeHost: 'https://go.actionstepstaging.com/',
-            authorizePath: 'api/oauth/authorize',
-            tokenHost: 'https://api.actionstepstaging.com/',
-            tokenPath: 'api/oauth/token',
+    return {
+        client: {
+            id: <string>process.env.ACTIONSTEP_CLIENT_ID,
+            secret: <string>process.env.ACTIONSTEP_CLIENT_SECRET,
         },
-    };
-
-    const master = {
-        client,
         auth: {
-            authorizeHost: 'https://go.actionstepstaging.com/',
-            authorizePath: 'api/oauth/authorize',
-            tokenHost: 'https://api.actionstepstaging.com/',
-            tokenPath: 'api/oauth/token',
+            authorizeHost: authorizeURL.origin,
+            authorizePath: authorizeURL.pathname,
+            tokenHost: tokenURL.origin,
+            tokenPath: tokenURL.pathname,
         },
+        redirectURI: `${process.env.PUBLIC_URL}/authorize/callback`,
     };
-
-    const config = process.env.GH_REF === 'dev' ? dev : master;
-
-    return { ...config, redirectURI: `${process.env.PUBLIC_URL}/authorize/callback` };
 })();
 
 const client = new AuthorizationCode({
