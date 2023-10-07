@@ -33,7 +33,7 @@ const config = (() => {
 
     const config = process.env.GH_REF === 'dev' ? dev : master;
 
-    return { ...config, redirectURI: `${process.env.PUBLIC_URL}/auth/callback` };
+    return { ...config, redirectURI: `${process.env.PUBLIC_URL}/authorize/callback` };
 })();
 
 const client = new AuthorizationCode({
