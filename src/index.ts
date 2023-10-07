@@ -21,7 +21,7 @@ app.use('/', ({ body }, res) => {
             });
         return;
     }
-    
+
     res.status(200).json({ ok: true });
 });
 
